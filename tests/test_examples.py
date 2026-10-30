@@ -7,6 +7,7 @@ import os
 import unittest
 
 from som import Assembler
+from som.explain import explain
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -81,6 +82,25 @@ E
     def test_mode_detection(self):
         self.assertEqual(assemble("copy_sic.asm").mode, "sic")
         self.assertEqual(assemble("copy_xe.asm").mode, "xe")
+
+
+class ExplainTest(unittest.TestCase):
+    def explain_op(self, name, opcode):
+        asm = assemble(name)
+        line = next(l for l in asm.lines if l.opcode == opcode)
+        return explain(line, asm.xe)
+
+    def test_pc_relative(self):
+        text = self.explain_op("copy_xe.asm", "STL")
+        self.assertIn("TA = PC + disp = 0030", text)
+
+    def test_base_relative(self):
+        text = self.explain_op("copy_xe.asm", "STCH")
+        self.assertIn("TA = (B) + disp = 0033 + 003 = 0036", text)
+
+    def test_sic_format(self):
+        text = self.explain_op("copy_sic.asm", "STCH")
+        self.assertIn("indeksli", text)
 
 
 class ErrorsTest(unittest.TestCase):

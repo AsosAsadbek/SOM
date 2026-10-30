@@ -306,6 +306,7 @@ class Assembler:
             elif fmt == 2:
                 line.obj = self._encode_format2(line)
             elif self.xe:
+                line.base = sec.base
                 line.obj = self._encode_format34(line, sec)
             else:
                 line.obj = self._encode_sic(line, sec)

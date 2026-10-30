@@ -13,6 +13,29 @@ programmani mashina kodiga (ob'ekt programmaga) o'giradi.
 
 Python 3.8+ kerak, qo'shimcha kutubxona kerak emas.
 
+### Grafik muhit
+
+```bash
+python som_gui.py
+```
+
+![Grafik oyna](docs/screenshot.png)
+
+* **chapda** - programma muharriri (rangli ajratish, satrlar 5, 10, 15 ... deb nomerlangan);
+* **o'ngda** - natijalar: *Listing*, *SYMTAB*, *Ob'ekt programma*, *Xatolar*;
+* **Assembler qilish (F5)** - programmani o'giradi;
+* listingdagi satrni tanlasangiz, **Buyruq tahlili** panelida ob'ekt kod
+  bitlarga ajratiladi (opcode, n i x b p e, disp, TA qanday hisoblandi) va
+  muharrirda mos satr sariq rangda belgilanadi;
+* xatoli satrlar qizil rangda, *Xatolar* bo'limidagi xatoni bossangiz - o'sha satrga o'tadi;
+* **Misollar** menyusi - darslikdagi 3 ta programma;
+* **Fayl > Natijani saqlash** - `.lst` va `.obj` fayllarini yozadi.
+
+Windows'da python.org dan o'rnatilgan Python'da `tkinter` bor. Linux'da kerak
+bo'lsa: `sudo apt install python3-tk`.
+
+### Buyruqlar satri
+
 ```bash
 python3 som_asm.py examples/copy_sic.asm      # standart SO'M programmasi
 python3 som_asm.py examples/copy_xe.asm       # SO'M/QV programmasi
@@ -107,7 +130,9 @@ e'lon qilingan) - uning adresi noma'lum. Shu sababli assembler programmani
 ## Fayllar
 
 ```
+som_gui.py            grafik muhit (tkinter)
 som_asm.py            buyruqlar satri interfeysi
+som/explain.py        ob'ekt kodni bitlarga ajratib tushuntirish
 som/optab.py          OPTAB, registrlar, direktivalar
 som/parser.py         satrni nishon/buyruq/operand/izohga ajratish
 som/expr.py           ifodalarni hisoblash

@@ -31,6 +31,7 @@ class SourceLine:
     is_literal_pool: bool = False  # LTORG/END da hosil qilingan "* =C'EOF'" satri
     # 2-o'tishda to'ldiriladi
     obj: str = ""
+    base: int = None            # buyruq o'girilgan paytdagi B registr qiymati
     errors: list = field(default_factory=list)
 
 
