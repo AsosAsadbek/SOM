@@ -3,3 +3,7 @@ __pycache__/
 *.lst
 *.obj
 .venv/
+build/
+dist/
+.venv-build/
+*.spec

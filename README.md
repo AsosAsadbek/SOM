@@ -18,7 +18,13 @@ Python 3.8+ kerak, qo'shimcha kutubxona kerak emas.
 ![Liquid Glass - yorug'](docs/glass-light.png)
 ![Liquid Glass - qorong'i](docs/glass-dark.png)
 
-Eng oson yo'l: Finder'da **`run_mac.command`** faylini ikki marta bosing.
+**Mac ilovasi (.app) qilish:** Finder'da **`build_mac_app.command`** faylini ikki
+marta bosing. U 1-3 daqiqada `dist/SOM Assembler.app` ni yig'adi (ikonka bilan)
+va xohlasangiz Applications papkasiga o'rnatadi. Shundan keyin dastur Launchpad
+va Dock'dan oddiy ilova kabi ochiladi, terminal kerak emas. Birinchi yig'ishda
+internet kerak (pywebview va PyInstaller o'rnatiladi).
+
+Ilovasiz ishga tushirish: Finder'da **`run_mac.command`** faylini ikki marta bosing.
 Birinchi marta u `.venv` yaratib, `pywebview` ni o'rnatadi. Yoki terminalda:
 
 ```bash
@@ -156,6 +162,8 @@ e'lon qilingan) - uning adresi noma'lum. Shu sababli assembler programmani
 som_glass.py          macOS Liquid Glass oynasi (pywebview) / brauzer rejimi
 ui/                   Liquid Glass interfeysi (HTML, CSS, JS)
 run_mac.command       macOS da ikki marta bosib ishga tushirish
+build_mac_app.command macOS ilovasini (SOM Assembler.app) yig'ish
+mac/icon.png          ilova ikonkasi
 som_gui.py            grafik muhit (tkinter)
 som_asm.py            buyruqlar satri interfeysi
 som/explain.py        ob'ekt kodni bitlarga ajratib tushuntirish

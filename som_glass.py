@@ -18,11 +18,11 @@ import webbrowser
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 
 from som import Assembler, AsmError
-from som.examples import EXAMPLES, example_path
+from som.examples import EXAMPLES, app_root, example_path
 from som.explain import explain
 from som.optab import DIRECTIVES, NO_OPERAND, OPTAB
 
-UI_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ui")
+UI_DIR = os.path.join(app_root(), "ui")
 TITLE = "SO'M Assembler"
 SOURCE_TYPES = ("Assembler fayllari (*.asm;*.txt)", "Barcha fayllar (*.*)")
 HIDDEN_LOC = {"END", "BASE", "NOBASE", "EXTDEF", "EXTREF", "LTORG"}
