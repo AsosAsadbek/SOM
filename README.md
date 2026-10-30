@@ -13,7 +13,30 @@ programmani mashina kodiga (ob'ekt programmaga) o'giradi.
 
 Python 3.8+ kerak, qo'shimcha kutubxona kerak emas.
 
-### Grafik muhit
+### macOS: Liquid Glass oynasi
+
+![Liquid Glass - yorug'](docs/glass-light.png)
+![Liquid Glass - qorong'i](docs/glass-dark.png)
+
+Eng oson yo'l: Finder'da **`run_mac.command`** faylini ikki marta bosing.
+Birinchi marta u `.venv` yaratib, `pywebview` ni o'rnatadi. Yoki terminalda:
+
+```bash
+pip3 install -r requirements.txt
+python3 som_glass.py
+```
+
+* oyna orqasi shaffof (macOS vibrancy), panellar - xira shisha;
+* tizimning yorug'/qorong'i rejimiga avtomatik moslashadi;
+* **Jonli** rejim - yozayotganingizda programma darhol qayta yig'iladi;
+* *Buyruq tahlili*da bitlar (opcode, n i x b p e, disp) rangli "chip"lar bilan ko'rsatiladi;
+* ⌘R yoki F5 - assembler qilish, ⌘S - saqlash, ⌘O - ochish, ⌘N - yangi.
+
+`pywebview` o'rnatilmagan bo'lsa yoki `python3 som_glass.py --browser` deb
+ishga tushirilsa, xuddi shu interfeys brauzerda ochiladi. Windows'da ham ishlaydi.
+Oyna orqasining shaffofligi yoqmasa: `python3 som_glass.py --no-vibrancy`.
+
+### Grafik muhit (tkinter, har qanday tizimda)
 
 ```bash
 python som_gui.py
@@ -130,6 +153,9 @@ e'lon qilingan) - uning adresi noma'lum. Shu sababli assembler programmani
 ## Fayllar
 
 ```
+som_glass.py          macOS Liquid Glass oynasi (pywebview) / brauzer rejimi
+ui/                   Liquid Glass interfeysi (HTML, CSS, JS)
+run_mac.command       macOS da ikki marta bosib ishga tushirish
 som_gui.py            grafik muhit (tkinter)
 som_asm.py            buyruqlar satri interfeysi
 som/explain.py        ob'ekt kodni bitlarga ajratib tushuntirish

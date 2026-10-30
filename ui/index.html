@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SO'M Assembler</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wallpaper" aria-hidden="true"></div>
+
+<header class="toolbar glass">
+  <div class="brand">
+    <div class="app-icon">S</div>
+    <div class="brand-text">
+      <div class="brand-title">SO'M Assembler</div>
+      <div class="brand-sub" id="fileName">nomsiz</div>
+    </div>
+  </div>
+
+  <div class="toolbar-group">
+    <button class="btn" id="btnNew" title="Yangi (⌘N)">Yangi</button>
+    <button class="btn" id="btnOpen" title="Ochish (⌘O)">Ochish</button>
+    <button class="btn" id="btnSave" title="Saqlash (⌘S)">Saqlash</button>
+    <div class="menu-wrap">
+      <button class="btn" id="btnExamples">Misollar <span class="chev">⌄</span></button>
+    </div>
+  </div>
+
+  <div class="segmented" id="modeSeg" role="tablist" aria-label="Rejim">
+    <button data-mode="auto" class="active">Avto</button>
+    <button data-mode="sic">SO'M</button>
+    <button data-mode="xe">SO'M/QV</button>
+  </div>
+
+  <div class="toolbar-group right">
+    <button class="btn" id="btnExport" title="Natijani saqlash (.lst, .obj)">Natijani saqlash</button>
+    <button class="btn primary" id="btnRun" title="Assembler qilish (⌘R / F5)">
+      <span class="play">▶</span> Assembler qilish
+    </button>
+  </div>
+</header>
+
+<main class="workspace">
+  <section class="panel glass editor-panel">
+    <div class="panel-head">
+      <span class="panel-title">Boshlang'ich programma</span>
+      <label class="switch" title="Har bir o'zgarishdan keyin avtomatik assembler qilish">
+        <input type="checkbox" id="liveToggle" checked>
+        <span class="track"><span class="thumb"></span></span>
+        <span class="switch-label">Jonli</span>
+      </label>
+    </div>
+    <div class="editor">
+      <div class="gutter" id="gutter"></div>
+      <div class="code-wrap">
+        <pre class="code-layer" id="highlight" aria-hidden="true"></pre>
+        <textarea class="code-layer" id="source" spellcheck="false" wrap="off"
+                  autocapitalize="off" autocomplete="off" autocorrect="off"></textarea>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel glass results-panel">
+    <div class="panel-head">
+      <div class="segmented small" id="tabSeg" role="tablist">
+        <button data-tab="listing" class="active">Listing</button>
+        <button data-tab="symtab">SYMTAB</button>
+        <button data-tab="object">Ob'ekt programma</button>
+        <button data-tab="errors">Xatolar <span class="badge" id="errBadge" hidden>0</span></button>
+      </div>
+    </div>
+
+    <div class="view" data-view="listing">
+      <div class="table-scroll" id="listingScroll">
+        <table class="data" id="listingTable">
+          <thead><tr>
+            <th>Satr</th><th>Adres</th><th>Nishon</th><th>Buyruq</th><th>Operand</th><th>Ob'ekt kodi</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="analysis glass-inner" id="analysis">
+        <div class="analysis-head">Buyruq tahlili</div>
+        <div class="bits" id="bits"></div>
+        <pre class="explain" id="explain">Listingdagi satrni tanlang - buyruq bitlarga ajratib ko'rsatiladi.</pre>
+      </div>
+    </div>
+
+    <div class="view" data-view="symtab" hidden>
+      <div class="table-scroll">
+        <table class="data" id="symtabTable">
+          <thead><tr><th>Seksiya</th><th>Nom</th><th>Qiymat</th><th>Turi</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="view" data-view="object" hidden>
+      <div class="object-scroll">
+        <pre class="object" id="objectBox"></pre>
+        <div class="legend">
+          <span><b class="rec-H">H</b> bosh qism: nomi, boshlang'ich adresi, uzunligi</span>
+          <span><b class="rec-D">D</b> EXTDEF: tashqariga ochiq nomlar</span>
+          <span><b class="rec-R">R</b> EXTREF: tashqi nomlar</span>
+          <span><b class="rec-T">T</b> tana: adres, uzunlik (≤ 1E bayt), kodlar</span>
+          <span><b class="rec-M">M</b> modifikatsiya: adres, yarim baytlar, [±nom]</span>
+          <span><b class="rec-E">E</b> tugallash: birinchi bajariladigan buyruq</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="view" data-view="errors" hidden>
+      <div class="table-scroll">
+        <table class="data" id="errorsTable">
+          <thead><tr><th>Satr</th><th>Xato</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <div class="empty" id="noErrors">Xatolar yo'q ✓</div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="statusbar glass">
+  <span class="dot" id="statusDot"></span>
+  <span id="statusText">Tayyor</span>
+  <span class="status-right" id="statusRight"></span>
+</footer>
+
+<!-- menyu toolbar dan tashqarida: aks holda backdrop-filter sahifani xiralashtirmaydi -->
+<div class="menu glass" id="examplesMenu" hidden></div>
+<div class="toast glass" id="toast" hidden></div>
+<input type="file" id="filePicker" accept=".asm,.txt,text/plain" hidden>
+
+<script src="app.js"></script>
+</body>
+</html>

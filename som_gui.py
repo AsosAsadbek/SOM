@@ -11,16 +11,11 @@ import tkinter.font as tkfont
 from tkinter import filedialog, messagebox, ttk
 
 from som import Assembler, AsmError
+from som.examples import EXAMPLES, example_path
 from som.explain import explain
 from som.optab import DIRECTIVES, OPTAB, is_mnemonic
 
 APP_TITLE = "SO'M / SO'M/QV assembler"
-ROOT = os.path.dirname(os.path.abspath(__file__))
-EXAMPLES = [
-    ("SO'M - COPY programmasi", "copy_sic.asm"),
-    ("SO'M/QV - COPY programmasi", "copy_xe.asm"),
-    ("SO'M/QV - boshqaruv seksiyalari", "copy_csect.asm"),
-]
 MODES = {"Avtomatik": "auto", "SO'M (SIC)": "sic", "SO'M/QV (SIC/XE)": "xe"}
 
 HELP_TEXT = """\
@@ -336,7 +331,7 @@ class AssemblerApp:
     def load_example(self, name):
         if not self._confirm_discard():
             return
-        path = os.path.join(ROOT, "examples", name)
+        path = example_path(name)
         with open(path, encoding="utf-8") as f:
             self._set_source(f.read(), path)
         self.run_assembler()

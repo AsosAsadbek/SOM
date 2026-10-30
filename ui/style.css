@@ -1,0 +1,526 @@
+/* SO'M Assembler - macOS "Liquid Glass" uslubi */
+
+:root {
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", "Segoe UI", sans-serif;
+  --mono: "SF Mono", ui-monospace, Menlo, Monaco, Consolas, monospace;
+
+  --text: #1d1d1f;
+  --text-2: rgba(29, 29, 31, .64);
+  --text-3: rgba(29, 29, 31, .42);
+  --hairline: rgba(0, 0, 0, .08);
+
+  --glass: rgba(255, 255, 255, .46);
+  --glass-inner: rgba(255, 255, 255, .42);
+  --glass-control: rgba(255, 255, 255, .58);
+  --glass-border: rgba(255, 255, 255, .72);
+  --glass-edge: rgba(255, 255, 255, .95);
+  --sheen: rgba(255, 255, 255, .55);
+  --shadow: 0 10px 40px rgba(40, 52, 110, .16), 0 1px 3px rgba(0, 0, 0, .06);
+  --seg-track: rgba(118, 118, 128, .14);
+  --th-bg: rgba(250, 251, 255, .86);
+
+  --accent: #007aff;
+  --accent-2: #0062d6;
+  --accent-soft: rgba(0, 122, 255, .16);
+  --red: #ff3b30;
+  --red-soft: rgba(255, 59, 48, .14);
+  --green: #28a745;
+
+  /* Xcode ranglari */
+  --syn-label: #0b4f79;
+  --syn-op: #9b2393;
+  --syn-dir: #b14600;
+  --syn-str: #c41a16;
+  --syn-num: #1c00cf;
+  --syn-comment: #5d6c79;
+
+  --wall-base: #e9eef9;
+  --wall-1: #7fb2ff;
+  --wall-2: #c79bff;
+  --wall-3: #ffb1d0;
+  --wall-4: #84e1d0;
+
+  --code-size: 13px;
+  --code-line: 20px;
+  --radius: 22px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text: #f5f5f7;
+    --text-2: rgba(245, 245, 247, .66);
+    --text-3: rgba(245, 245, 247, .4);
+    --hairline: rgba(255, 255, 255, .08);
+
+    --glass: rgba(40, 42, 54, .46);
+    --glass-inner: rgba(30, 32, 44, .42);
+    --glass-control: rgba(255, 255, 255, .12);
+    --glass-border: rgba(255, 255, 255, .16);
+    --glass-edge: rgba(255, 255, 255, .28);
+    --sheen: rgba(255, 255, 255, .12);
+    --shadow: 0 10px 40px rgba(0, 0, 0, .45), 0 1px 3px rgba(0, 0, 0, .3);
+    --seg-track: rgba(118, 118, 128, .24);
+    --th-bg: rgba(36, 38, 50, .88);
+
+    --accent: #0a84ff;
+    --accent-2: #0071e3;
+    --accent-soft: rgba(10, 132, 255, .24);
+    --red: #ff453a;
+    --red-soft: rgba(255, 69, 58, .2);
+    --green: #32d74b;
+
+    --syn-label: #5dd8ff;
+    --syn-op: #fc5fa3;
+    --syn-dir: #fd8f3f;
+    --syn-str: #fc6a5d;
+    --syn-num: #d0bf69;
+    --syn-comment: #7f8c98;
+
+    --wall-base: #0b0e18;
+    --wall-1: #1f4fa8;
+    --wall-2: #5a2a9c;
+    --wall-3: #8a2a5e;
+    --wall-4: #0f6b63;
+  }
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font: 13px/1.4 var(--font);
+  color: var(--text);
+  background: var(--wall-base);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 12px;
+  padding: 12px 14px;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Fon: shisha orqasida ko'rinadigan rangli "oboi" */
+.wallpaper {
+  position: fixed;
+  inset: -10%;
+  z-index: -1;
+  background:
+    radial-gradient(38% 46% at 12% 18%, var(--wall-1), transparent 70%),
+    radial-gradient(34% 42% at 88% 14%, var(--wall-2), transparent 70%),
+    radial-gradient(40% 48% at 78% 88%, var(--wall-3), transparent 70%),
+    radial-gradient(36% 44% at 18% 86%, var(--wall-4), transparent 70%),
+    var(--wall-base);
+  filter: saturate(115%);
+}
+
+/* macOS da oyna orqasidagi ish stoli ham ko'rinadi */
+body.vibrant { background: transparent; }
+body.vibrant .wallpaper { opacity: .55; }
+
+/* ---------- Shisha sirt ---------- */
+.glass {
+  position: relative;
+  background:
+    linear-gradient(135deg, var(--sheen) 0%, transparent 34%, transparent 72%, rgba(255, 255, 255, .08) 100%),
+    var(--glass);
+  -webkit-backdrop-filter: blur(30px) saturate(185%);
+  backdrop-filter: blur(30px) saturate(185%);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow), inset 0 1px 0 var(--glass-edge), inset 0 -1px 0 rgba(255, 255, 255, .12);
+}
+
+.glass-inner {
+  background: var(--glass-inner);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  box-shadow: inset 0 1px 0 var(--glass-edge);
+}
+
+/* ---------- Asboblar paneli ---------- */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 10px 8px 12px;
+  border-radius: 20px;
+  z-index: 5;
+}
+
+.brand { display: flex; align-items: center; gap: 10px; min-width: 170px; }
+
+.app-icon {
+  width: 34px; height: 34px;
+  border-radius: 9px;
+  display: grid; place-items: center;
+  font: 700 18px var(--font);
+  color: #fff;
+  background: linear-gradient(160deg, #5ac8fa, #007aff 55%, #5856d6);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .6), 0 3px 10px rgba(0, 90, 255, .35);
+}
+
+.brand-title { font-weight: 600; font-size: 13.5px; letter-spacing: -.01em; }
+.brand-sub { font-size: 11.5px; color: var(--text-2); max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.toolbar-group { display: flex; align-items: center; gap: 6px; }
+.toolbar-group.right { margin-left: auto; }
+
+.btn {
+  appearance: none;
+  font: 500 12.5px var(--font);
+  color: var(--text);
+  height: 30px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-control);
+  box-shadow: inset 0 1px 0 var(--glass-edge), 0 1px 2px rgba(0, 0, 0, .06);
+  cursor: default;
+  transition: transform .12s ease, background .15s ease, box-shadow .15s ease;
+  white-space: nowrap;
+}
+.btn:hover { background: rgba(255, 255, 255, .78); }
+@media (prefers-color-scheme: dark) { .btn:hover { background: rgba(255, 255, 255, .2); } }
+.btn:active { transform: scale(.96); }
+.btn:focus-visible { outline: 3px solid var(--accent-soft); outline-offset: 1px; }
+
+.btn.primary {
+  color: #fff;
+  border-color: rgba(255, 255, 255, .35);
+  background: linear-gradient(180deg, rgba(40, 150, 255, .95), var(--accent-2));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .5), 0 4px 14px rgba(0, 110, 255, .35);
+  padding: 0 16px;
+}
+.btn.primary:hover { background: linear-gradient(180deg, rgba(60, 165, 255, .98), var(--accent)); }
+.play { font-size: 10px; margin-right: 4px; }
+.chev { font-size: 11px; opacity: .6; margin-left: 2px; }
+
+/* Segmentli tanlagich */
+.segmented {
+  display: inline-flex;
+  padding: 3px;
+  gap: 2px;
+  border-radius: 999px;
+  background: var(--seg-track);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, .06);
+}
+.segmented button {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--text-2);
+  font: 500 12.5px var(--font);
+  height: 26px;
+  padding: 0 14px;
+  border-radius: 999px;
+  cursor: default;
+  transition: background .18s ease, color .18s ease, box-shadow .18s ease;
+}
+.segmented button:hover { color: var(--text); }
+.segmented button.active {
+  color: var(--text);
+  background: var(--glass-control);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .12), inset 0 1px 0 var(--glass-edge);
+}
+@media (prefers-color-scheme: dark) {
+  .segmented button.active { background: rgba(255, 255, 255, .22); }
+}
+.segmented.small button { height: 24px; padding: 0 12px; font-size: 12px; }
+
+.badge {
+  display: inline-block;
+  min-width: 17px;
+  padding: 0 5px;
+  margin-left: 4px;
+  border-radius: 999px;
+  background: var(--red);
+  color: #fff;
+  font: 600 10.5px/17px var(--font);
+}
+
+/* Misollar menyusi */
+.menu-wrap { position: relative; }
+.menu {
+  position: fixed;
+  min-width: 260px;
+  padding: 6px;
+  border-radius: 14px;
+  z-index: 20;
+  --glass: rgba(255, 255, 255, .62);
+}
+@media (prefers-color-scheme: dark) { .menu { --glass: rgba(44, 46, 58, .7); } }
+.menu button {
+  display: block; width: 100%;
+  text-align: left;
+  appearance: none; border: 0; background: transparent;
+  color: var(--text);
+  font: 13px var(--font);
+  padding: 7px 10px;
+  border-radius: 8px;
+  cursor: default;
+}
+.menu button:hover { background: var(--accent); color: #fff; }
+
+/* ---------- Ish maydoni ---------- */
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(360px, 1fr) minmax(440px, 1.15fr);
+  gap: 12px;
+  min-height: 0;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 14px 8px;
+  min-height: 44px;
+}
+.panel-title { font-weight: 600; font-size: 12.5px; color: var(--text-2); letter-spacing: .01em; }
+
+/* Switch */
+.switch { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: var(--text-2); }
+.switch input { display: none; }
+.switch .track {
+  width: 32px; height: 19px;
+  border-radius: 999px;
+  background: var(--seg-track);
+  position: relative;
+  transition: background .2s ease;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, .1);
+}
+.switch .thumb {
+  position: absolute; top: 2px; left: 2px;
+  width: 15px; height: 15px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .3);
+  transition: transform .2s ease;
+}
+.switch input:checked + .track { background: var(--green); }
+.switch input:checked + .track .thumb { transform: translateX(13px); }
+
+/* ---------- Muharrir ---------- */
+.editor {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  margin: 0 10px 10px;
+  border-radius: 16px;
+  background: var(--glass-inner);
+  border: 1px solid var(--glass-border);
+  box-shadow: inset 0 1px 0 var(--glass-edge);
+  overflow: hidden;
+}
+
+.gutter {
+  flex: none;
+  width: 48px;
+  padding: 10px 8px 60px 0;
+  text-align: right;
+  font: var(--code-size)/var(--code-line) var(--mono);
+  color: var(--text-3);
+  overflow: hidden;
+  border-right: 1px solid var(--hairline);
+  white-space: pre;
+}
+.gutter .err { color: var(--red); font-weight: 600; }
+
+.code-wrap { position: relative; flex: 1; min-width: 0; }
+
+.code-layer {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 10px 12px 40px;
+  font: var(--code-size)/var(--code-line) var(--mono);
+  white-space: pre;
+  tab-size: 8;
+  letter-spacing: 0;
+  border: 0;
+}
+
+#highlight { overflow: hidden; color: var(--text); pointer-events: none; padding-bottom: 60px; }
+#highlight .ln { display: block; min-width: 100%; width: max-content; padding-right: 24px; margin: 0 -12px; padding-left: 12px; border-radius: 6px; }
+#highlight .ln.err { background: var(--red-soft); }
+#highlight .ln.cur { background: var(--accent-soft); }
+
+#source {
+  resize: none;
+  outline: none;
+  background: transparent;
+  color: transparent;
+  caret-color: var(--accent);
+  overflow: auto;
+  user-select: text;
+  -webkit-user-select: text;
+}
+#source::selection { background: rgba(0, 122, 255, .25); color: transparent; }
+
+.tok-label { color: var(--syn-label); }
+.tok-op { color: var(--syn-op); font-weight: 600; }
+.tok-dir { color: var(--syn-dir); font-weight: 600; }
+.tok-str { color: var(--syn-str); }
+.tok-num { color: var(--syn-num); }
+.tok-comment { color: var(--syn-comment); font-style: italic; }
+.tok-mod { color: var(--syn-op); }
+
+/* ---------- Natijalar ---------- */
+.view { flex: 1; display: flex; flex-direction: column; min-height: 0; padding: 0 10px 10px; gap: 10px; }
+.view[hidden] { display: none; }
+
+.table-scroll {
+  flex: 1;
+  min-height: 120px;
+  overflow: auto;
+  border-radius: 16px;
+  background: var(--glass-inner);
+  border: 1px solid var(--glass-border);
+  box-shadow: inset 0 1px 0 var(--glass-edge);
+  position: relative;
+}
+
+table.data { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 12.5px; }
+table.data th {
+  position: sticky; top: 0; z-index: 1;
+  text-align: left;
+  font-weight: 600;
+  font-size: 11.5px;
+  color: var(--text-2);
+  padding: 8px 10px;
+  background: var(--th-bg);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid var(--hairline);
+}
+table.data td {
+  padding: 3px 10px;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--hairline);
+}
+table.data tbody tr { cursor: default; }
+table.data tbody tr:hover td { background: rgba(127, 127, 127, .07); }
+table.data tbody tr.comment td { color: var(--syn-comment); font-style: italic; }
+table.data tbody tr.literal td { color: var(--green); }
+table.data tbody tr.error td { background: var(--red-soft); }
+table.data tbody tr.selected td { background: var(--accent); color: #fff; }
+table.data td.obj { color: var(--syn-num); font-weight: 600; }
+table.data tr.selected td.obj { color: #fff; }
+table.data td.num { color: var(--text-3); }
+table.data td.op { color: var(--syn-op); }
+table.data tr.selected td.num, table.data tr.selected td.op { color: #fff; }
+table.data td.msg { font-family: var(--font); white-space: normal; }
+#errorsTable td:first-child { width: 60px; }
+
+.empty { padding: 30px; text-align: center; color: var(--green); font-weight: 600; }
+
+/* Buyruq tahlili */
+.analysis { flex: none; padding: 10px 14px 12px; max-height: 46%; overflow: auto; }
+.analysis-head { font-weight: 600; font-size: 12px; color: var(--text-2); margin-bottom: 8px; }
+
+.bits { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.bits:empty { display: none; }
+.bit-field {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+}
+.bit-name { font-size: 10.5px; font-weight: 600; color: var(--text-2); text-transform: lowercase; }
+.bit-val {
+  font: 600 13px var(--mono);
+  padding: 4px 9px;
+  border-radius: 9px;
+  border: 1px solid var(--glass-border);
+  box-shadow: inset 0 1px 0 var(--glass-edge);
+  background: var(--glass-control);
+  letter-spacing: .06em;
+}
+.bit-field.opcode .bit-val { background: rgba(175, 82, 222, .18); color: var(--syn-op); }
+.bit-field.flag .bit-val { min-width: 30px; text-align: center; color: var(--text-3); }
+.bit-field.flag.on .bit-val { background: var(--accent); color: #fff; border-color: transparent; }
+.bit-field.addr .bit-val { background: rgba(48, 176, 199, .18); color: var(--syn-label); }
+.bit-field.reg .bit-val { background: rgba(255, 149, 0, .18); color: var(--syn-dir); }
+.bit-sub { font: 11px var(--mono); color: var(--text-3); }
+
+.explain {
+  margin: 0;
+  font: 12.5px/1.55 var(--mono);
+  white-space: pre-wrap;
+  color: var(--text);
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+/* Ob'ekt programma */
+.object-scroll {
+  flex: 1;
+  overflow: auto;
+  border-radius: 16px;
+  background: var(--glass-inner);
+  border: 1px solid var(--glass-border);
+  box-shadow: inset 0 1px 0 var(--glass-edge);
+  padding: 12px 14px;
+}
+.object { margin: 0 0 14px; font: 13px/1.7 var(--mono); user-select: text; -webkit-user-select: text; }
+.object .sep { color: var(--text-3); }
+.rec-H { color: var(--accent); }
+.rec-D, .rec-R { color: var(--green); }
+.rec-T { color: var(--text); }
+.rec-M { color: var(--syn-dir); }
+.rec-E { color: var(--syn-op); }
+.object b, .legend b { font-weight: 700; }
+.legend { display: grid; gap: 4px; font-size: 12px; color: var(--text-2); border-top: 1px solid var(--hairline); padding-top: 10px; }
+.legend b { display: inline-block; width: 18px; font-family: var(--mono); }
+
+/* ---------- Holat qatori ---------- */
+.statusbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  color: var(--text-2);
+}
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-3); }
+.dot.ok { background: var(--green); box-shadow: 0 0 8px var(--green); }
+.dot.bad { background: var(--red); box-shadow: 0 0 8px var(--red); }
+.status-right { margin-left: auto; font-family: var(--mono); font-size: 11.5px; }
+
+/* Bildirishnoma */
+.toast {
+  position: fixed;
+  left: 50%; bottom: 64px;
+  transform: translateX(-50%);
+  padding: 9px 18px;
+  border-radius: 999px;
+  font-weight: 500;
+  z-index: 50;
+  animation: toast-in .25s ease;
+}
+@keyframes toast-in { from { opacity: 0; transform: translate(-50%, 8px); } }
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: rgba(127, 127, 127, .35); border-radius: 999px; border: 2px solid transparent; background-clip: content-box; }
+::-webkit-scrollbar-corner { background: transparent; }
+
+@media (max-width: 1100px) {
+  .brand { min-width: 0; }
+  .brand-text { display: none; }
+  #btnExport { display: none; }
+}
