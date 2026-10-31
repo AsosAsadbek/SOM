@@ -28,3 +28,43 @@ class GlassApiTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TableModeTest(unittest.TestCase):
+    """Interaktiv jadval: satrlar alohida kataklardan, adreslar qo'lda berilishi mumkin."""
+
+    def rows(self):
+        return Api().load_example("copy_sic.asm")["rows"]
+
+    def test_rows_give_same_object_program_as_text(self):
+        api = Api()
+        text = api.load_example("copy_sic.asm")["text"]
+        self.assertEqual(api.assemble_rows(self.rows())["object"], api.assemble(text)["object"])
+
+    def test_symbol_count_matches_original_table(self):
+        self.assertEqual(Api().assemble_rows(self.rows())["symbolCount"], 17)
+
+    def test_manual_address_moves_following_rows(self):
+        rows = self.rows()
+        rows[2]["addr"] = "2000"                    # CLOOP JSUB RDREC
+        res = Api().assemble_rows(rows, "auto", False)
+        by_line = {r["lineno"]: r for r in res["rows"]}
+        self.assertEqual((by_line[15]["loc"], by_line[15]["manualAddr"]), ("2000", True))
+        self.assertEqual(by_line[20]["loc"], "2003")
+        self.assertEqual(by_line[10]["obj"], "142030")   # RETADR ham 1000h ga surildi
+
+    def test_manual_address_ignored_when_auto(self):
+        rows = self.rows()
+        rows[2]["addr"] = "2000"
+        res = Api().assemble_rows(rows, "auto", True)
+        self.assertEqual(res["rows"][2]["loc"], "1003")
+
+    def test_bad_manual_address_is_an_error(self):
+        rows = self.rows()
+        rows[2]["addr"] = "XYZ"
+        self.assertEqual(Api().assemble_rows(rows, "auto", False)["errorCount"], 1)
+
+    def test_operand_on_rsub_is_an_error(self):
+        rows = [{"label": "P", "opcode": "START", "operand": "0"},
+                {"opcode": "RSUB", "operand": "X"}, {"opcode": "END"}]
+        self.assertEqual(Api().assemble_rows(rows, "xe")["errorCount"], 1)

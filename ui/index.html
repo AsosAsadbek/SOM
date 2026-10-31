@@ -35,28 +35,44 @@
 
   <div class="toolbar-group right">
     <button class="btn" id="btnExport" title="Natijani saqlash (.lst, .obj)">Natijani saqlash</button>
-    <button class="btn primary" id="btnRun" title="Assembler qilish (⌘R / F5)">
-      <span class="play">▶</span> Assembler qilish
+    <button class="btn primary" id="btnRun" title="Adres va ob'ekt kodlarni qayta hisoblash (⌘R / F5)">
+      <span class="play">▶</span> Qayta hisoblash
     </button>
   </div>
 </header>
 
 <main class="workspace">
-  <section class="panel glass editor-panel">
+  <section class="panel glass table-panel">
     <div class="panel-head">
-      <span class="panel-title">Boshlang'ich programma</span>
-      <label class="switch" title="Har bir o'zgarishdan keyin avtomatik assembler qilish">
-        <input type="checkbox" id="liveToggle" checked>
-        <span class="track"><span class="thumb"></span></span>
-        <span class="switch-label">Jonli</span>
-      </label>
+      <span class="panel-title">Assembler jadvali</span>
+      <div class="table-tools">
+        <button class="btn sm" id="btnAddRow" title="Tanlangan satrdan keyin (⌘↩)">+ Satr qo'shish</button>
+        <button class="btn sm icon" id="btnUp" title="Yuqoriga (⌘↑)">↑</button>
+        <button class="btn sm icon" id="btnDown" title="Pastga (⌘↓)">↓</button>
+        <button class="btn sm" id="btnDelRow" title="Satrni o'chirish (⌘⌫)">− O'chirish</button>
+        <span class="tool-sep"></span>
+        <label class="switch" title="O'chirilsa, Adres katagiga yozilgan qiymat ishlatiladi">
+          <input type="checkbox" id="autoAddr" checked>
+          <span class="track"><span class="thumb"></span></span>
+          <span class="switch-label">Avtomatik adres</span>
+        </label>
+        <button class="btn sm" id="btnResetAddr" title="Qo'lda yozilgan adreslarni o'chirish">Adreslarni tiklash</button>
+        <button class="btn sm" id="btnCsv">CSV saqlash</button>
+      </div>
     </div>
-    <div class="editor">
-      <div class="gutter" id="gutter"></div>
-      <div class="code-wrap">
-        <pre class="code-layer" id="highlight" aria-hidden="true"></pre>
-        <textarea class="code-layer" id="source" spellcheck="false" wrap="off"
-                  autocapitalize="off" autocomplete="off" autocorrect="off"></textarea>
+    <div class="hint">Katakni ikki marta bosing yoki yozishni boshlang — tahrirlanadi (Adres ham). Enter — saqlash, Tab — keyingi katak, Esc — bekor qilish, ⌘Z — orqaga. END dan keyingi satrlar o'chiriladi.</div>
+    <div class="view">
+      <div class="table-scroll" id="gridScroll" tabindex="0">
+        <table class="data grid" id="grid">
+          <colgroup>
+            <col class="c-num"><col class="c-addr"><col class="c-label"><col class="c-op">
+            <col class="c-arg"><col class="c-obj"><col class="c-cmt">
+          </colgroup>
+          <thead><tr>
+            <th>Satr</th><th>Adres</th><th>Nishon</th><th>Buyruq</th><th>Operand</th><th>Ob'ekt kodi</th><th>Izoh</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
       </div>
     </div>
   </section>
@@ -64,35 +80,17 @@
   <section class="panel glass results-panel">
     <div class="panel-head">
       <div class="segmented small" id="tabSeg" role="tablist">
-        <button data-tab="listing" class="active">Listing</button>
-        <button data-tab="symtab">SYMTAB</button>
+        <button data-tab="analysis" class="active">Buyruq tahlili</button>
         <button data-tab="object">Ob'ekt programma</button>
+        <button data-tab="symtab">SYMTAB</button>
         <button data-tab="errors">Xatolar <span class="badge" id="errBadge" hidden>0</span></button>
       </div>
     </div>
 
-    <div class="view" data-view="listing">
-      <div class="table-scroll" id="listingScroll">
-        <table class="data" id="listingTable">
-          <thead><tr>
-            <th>Satr</th><th>Adres</th><th>Nishon</th><th>Buyruq</th><th>Operand</th><th>Ob'ekt kodi</th>
-          </tr></thead>
-          <tbody></tbody>
-        </table>
-      </div>
+    <div class="view" data-view="analysis">
       <div class="analysis glass-inner" id="analysis">
-        <div class="analysis-head">Buyruq tahlili</div>
         <div class="bits" id="bits"></div>
-        <pre class="explain" id="explain">Listingdagi satrni tanlang - buyruq bitlarga ajratib ko'rsatiladi.</pre>
-      </div>
-    </div>
-
-    <div class="view" data-view="symtab" hidden>
-      <div class="table-scroll">
-        <table class="data" id="symtabTable">
-          <thead><tr><th>Seksiya</th><th>Nom</th><th>Qiymat</th><th>Turi</th></tr></thead>
-          <tbody></tbody>
-        </table>
+        <pre class="explain" id="explain">Jadvaldagi satrni tanlang - buyruq bitlarga ajratib ko'rsatiladi.</pre>
       </div>
     </div>
 
@@ -107,6 +105,15 @@
           <span><b class="rec-M">M</b> modifikatsiya: adres, yarim baytlar, [±nom]</span>
           <span><b class="rec-E">E</b> tugallash: birinchi bajariladigan buyruq</span>
         </div>
+      </div>
+    </div>
+
+    <div class="view" data-view="symtab" hidden>
+      <div class="table-scroll">
+        <table class="data" id="symtabTable">
+          <thead><tr><th>Seksiya</th><th>Nom</th><th>Qiymat</th><th>Turi</th></tr></thead>
+          <tbody></tbody>
+        </table>
       </div>
     </div>
 
@@ -132,6 +139,7 @@
 <div class="menu glass" id="examplesMenu" hidden></div>
 <div class="toast glass" id="toast" hidden></div>
 <input type="file" id="filePicker" accept=".asm,.txt,text/plain" hidden>
+<datalist id="mnemonics"></datalist>
 
 <script src="app.js"></script>
 </body>

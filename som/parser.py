@@ -124,5 +124,23 @@ def parse_line(text, lineno):
     return line
 
 
+def line_from_fields(lineno, label="", opcode="", operand="", comment=""):
+    """Jadval satridan (alohida kataklardan) SourceLine yaratadi.
+    Matnni qayta tahlil qilish shart emas: har bir maydon o'z katagida."""
+    label, opcode, operand, comment = ((s or "").strip() for s in (label, opcode, operand, comment))
+    if not (label or opcode or operand):
+        return SourceLine(lineno=lineno, text=f"*  {comment}" if comment else "",
+                          is_comment=True, comment=comment or None)
+    text = f"{label:<9}{opcode:<9}{operand:<18}{comment}".rstrip()
+    return SourceLine(
+        lineno=lineno, text=text,
+        label=label.upper() or None,
+        extended=opcode.startswith("+"),
+        opcode=opcode.lstrip("+").upper() or None,
+        operand=_normalize_operand(operand) if operand else None,
+        comment=comment or None,
+    )
+
+
 def needs_operand(opcode):
     return opcode not in NO_OPERAND and opcode not in OPTIONAL_OPERAND

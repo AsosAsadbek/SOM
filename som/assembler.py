@@ -15,8 +15,8 @@
 from dataclasses import dataclass, field
 
 from .expr import AsmError, Value, evaluate
-from .optab import (DIRECTIVES, FORMAT2_OPERANDS, OPTAB, REGISTERS, SIC_OPS,
-                    XE_DIRECTIVES)
+from .optab import (DIRECTIVES, FORMAT2_OPERANDS, NO_OPERAND, OPTAB, REGISTERS,
+                    SIC_OPS, XE_DIRECTIVES)
 from .parser import SourceLine, needs_operand, parse_line
 
 MAX_TEXT_BYTES = 30         # bitta T yozuvidagi eng ko'p bayt soni (1E)
@@ -81,9 +81,13 @@ def parse_literal(name):
 
 
 class Assembler:
-    def __init__(self, source, mode="auto"):
-        self.source_lines = [parse_line(t, (i + 1) * 5)
-                             for i, t in enumerate(source.splitlines())]
+    def __init__(self, source=None, mode="auto", lines=None, locs=None):
+        """source - programma matni; yoki lines - tayyor SourceLine lar (jadvaldan).
+        locs - {satr indeksi: adres}: qo'lda berilgan adreslar ("Avtomatik adres" o'chiq)."""
+        if lines is None:
+            lines = [parse_line(t, (i + 1) * 5) for i, t in enumerate(source.splitlines())]
+        self.source_lines = lines
+        self.locs = locs or {}
         self.mode = mode if mode != "auto" else self._detect_mode()
         self.lines = []         # oraliq fayl: 1-o'tish natijasi
         self.sections = []
@@ -119,7 +123,7 @@ class Assembler:
     def pass1(self):
         sec = None
         ended = False
-        for line in self.source_lines:
+        for idx, line in enumerate(self.source_lines):
             if line.is_comment:
                 self.lines.append(line)
                 continue
@@ -146,6 +150,10 @@ class Assembler:
                 sec = self._new_section(line.label or "", 0)
                 if not line.label:
                     line.errors.append("CSECT uchun nom (nishon) kerak")
+
+            if idx in self.locs:            # qo'lda berilgan adres: LOCCTR shu qiymatdan davom etadi
+                sec.locctr = self.locs[idx]
+                sec.max_loc = max(sec.max_loc, sec.locctr)
 
             line.loc, line.section = sec.locctr, sec
             self.lines.append(line)
@@ -198,10 +206,14 @@ class Assembler:
 
     def _pass1_line(self, line, sec):
         op = line.opcode
+        if not op:
+            raise AsmError("buyruq ko'rsatilmagan")
         if op not in OPTAB and op not in DIRECTIVES:
             raise AsmError(f"noma'lum buyruq: {op}")
         if needs_operand(op) and not line.operand:
             raise AsmError(f"{op} uchun operand kerak")
+        if op in NO_OPERAND and line.operand:
+            raise AsmError(f"{op} operand olmaydi")
         if not self.xe:
             self._check_sic(line)
 

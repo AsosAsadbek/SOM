@@ -271,7 +271,7 @@ body.vibrant .wallpaper { opacity: .55; }
 /* ---------- Ish maydoni ---------- */
 .workspace {
   display: grid;
-  grid-template-columns: minmax(360px, 1fr) minmax(440px, 1.15fr);
+  grid-template-columns: minmax(600px, 1.65fr) minmax(360px, 1fr);
   gap: 12px;
   min-height: 0;
 }
@@ -315,63 +315,7 @@ body.vibrant .wallpaper { opacity: .55; }
 .switch input:checked + .track { background: var(--green); }
 .switch input:checked + .track .thumb { transform: translateX(13px); }
 
-/* ---------- Muharrir ---------- */
-.editor {
-  flex: 1;
-  display: flex;
-  min-height: 0;
-  margin: 0 10px 10px;
-  border-radius: 16px;
-  background: var(--glass-inner);
-  border: 1px solid var(--glass-border);
-  box-shadow: inset 0 1px 0 var(--glass-edge);
-  overflow: hidden;
-}
-
-.gutter {
-  flex: none;
-  width: 48px;
-  padding: 10px 8px 60px 0;
-  text-align: right;
-  font: var(--code-size)/var(--code-line) var(--mono);
-  color: var(--text-3);
-  overflow: hidden;
-  border-right: 1px solid var(--hairline);
-  white-space: pre;
-}
-.gutter .err { color: var(--red); font-weight: 600; }
-
-.code-wrap { position: relative; flex: 1; min-width: 0; }
-
-.code-layer {
-  position: absolute;
-  inset: 0;
-  margin: 0;
-  padding: 10px 12px 40px;
-  font: var(--code-size)/var(--code-line) var(--mono);
-  white-space: pre;
-  tab-size: 8;
-  letter-spacing: 0;
-  border: 0;
-}
-
-#highlight { overflow: hidden; color: var(--text); pointer-events: none; padding-bottom: 60px; }
-#highlight .ln { display: block; min-width: 100%; width: max-content; padding-right: 24px; margin: 0 -12px; padding-left: 12px; border-radius: 6px; }
-#highlight .ln.err { background: var(--red-soft); }
-#highlight .ln.cur { background: var(--accent-soft); }
-
-#source {
-  resize: none;
-  outline: none;
-  background: transparent;
-  color: transparent;
-  caret-color: var(--accent);
-  overflow: auto;
-  user-select: text;
-  -webkit-user-select: text;
-}
-#source::selection { background: rgba(0, 122, 255, .25); color: transparent; }
-
+/* Rangli kataklar (Nishon, Buyruq, Operand) */
 .tok-label { color: var(--syn-label); }
 .tok-op { color: var(--syn-op); font-weight: 600; }
 .tok-dir { color: var(--syn-dir); font-weight: 600; }
@@ -432,7 +376,7 @@ table.data td.msg { font-family: var(--font); white-space: normal; }
 .empty { padding: 30px; text-align: center; color: var(--green); font-weight: 600; }
 
 /* Buyruq tahlili */
-.analysis { flex: none; padding: 10px 14px 12px; max-height: 46%; overflow: auto; }
+.analysis { flex: 1; min-height: 0; padding: 12px 14px; overflow: auto; }
 .analysis-head { font-weight: 600; font-size: 12px; color: var(--text-2); margin-bottom: 8px; }
 
 .bits { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
@@ -524,3 +468,46 @@ table.data td.msg { font-family: var(--font); white-space: normal; }
   .brand-text { display: none; }
   #btnExport { display: none; }
 }
+
+/* ---------- Interaktiv jadval ---------- */
+.table-panel .panel-head { flex-wrap: wrap; row-gap: 8px; }
+.table-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.btn.sm { height: 26px; padding: 0 11px; font-size: 12px; }
+.btn.sm.icon { width: 30px; padding: 0; }
+.btn:disabled { opacity: .4; pointer-events: none; }
+.tool-sep { width: 1px; height: 18px; background: var(--hairline); margin: 0 4px; }
+.hint { padding: 0 16px 8px; font-size: 11.5px; color: var(--text-3); }
+
+table.grid { table-layout: fixed; min-width: 720px; }
+table.grid col.c-num { width: 48px; }
+table.grid col.c-addr { width: 66px; }
+table.grid col.c-label { width: 86px; }
+table.grid col.c-op { width: 84px; }
+table.grid col.c-arg { width: 148px; }
+table.grid col.c-obj { width: 92px; }
+table.grid td { overflow: hidden; text-overflow: ellipsis; height: 27px; position: relative; }
+table.grid td.ed { cursor: cell; }
+table.grid td.cmt { font-family: var(--font); color: var(--text-2); }
+table.grid tr.comment td.cmt { color: var(--syn-comment); font-style: italic; }
+table.grid td.addr.manual { color: var(--accent); font-weight: 600; }
+table.grid td.addr.manual::after { content: "•"; margin-left: 3px; }
+table.grid tbody tr.selected td.cur { box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .9); border-radius: 4px; }
+table.grid tr.selected td.cmt, table.grid tr.selected td.addr.manual { color: #fff; }
+table.grid tr.selected .tok-label, table.grid tr.selected .tok-op, table.grid tr.selected .tok-dir,
+table.grid tr.selected .tok-str, table.grid tr.selected .tok-num, table.grid tr.selected .tok-mod { color: #fff; }
+table.grid tr.error td.num { color: var(--red); font-weight: 700; }
+table.grid td.editing { padding: 1px 2px; overflow: visible; }
+.cell-input {
+  width: 100%; height: 24px;
+  font: 12.5px var(--mono);
+  color: var(--text);
+  padding: 0 7px;
+  border: 2px solid var(--accent);
+  border-radius: 6px;
+  background: var(--th-bg);
+  outline: none;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .15);
+}
+td.cmt .cell-input { font-family: var(--font); }
+.err-tip { color: var(--red); font-family: var(--font); font-size: 11.5px; margin-left: 6px; }
+tr.selected .err-tip { color: #fff; }

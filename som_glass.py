@@ -21,6 +21,7 @@ from som import Assembler, AsmError
 from som.examples import EXAMPLES, app_root, example_path
 from som.explain import explain
 from som.optab import DIRECTIVES, NO_OPERAND, OPTAB
+from som.parser import line_from_fields, parse_line
 
 UI_DIR = os.path.join(app_root(), "ui")
 TITLE = "SO'M Assembler"
@@ -28,10 +29,54 @@ SOURCE_TYPES = ("Assembler fayllari (*.asm;*.txt)", "Barcha fayllar (*.*)")
 HIDDEN_LOC = {"END", "BASE", "NOBASE", "EXTDEF", "EXTREF", "LTORG"}
 
 
+def parse_source(text):
+    """Programma matnini jadval satrlariga ajratadi: [{label, opcode, operand, comment}].
+    Faqat '*' yoki '.' dan iborat bo'sh izoh satrlari tashlab yuboriladi."""
+    rows = []
+    for raw in text.splitlines():
+        line = parse_line(raw, 0)
+        if line.is_comment:
+            comment = (line.comment or "").lstrip(".*").strip()
+            if comment:
+                rows.append({"label": "", "opcode": "", "operand": "", "comment": comment, "addr": ""})
+            continue
+        rows.append({
+            "label": line.label or "",
+            "opcode": ("+" if line.extended else "") + (line.opcode or ""),
+            "operand": line.operand or "",
+            "comment": line.comment or "",
+            "addr": "",
+        })
+    return rows
+
+
+def build_assembler(rows, mode="auto", auto_addr=True):
+    """Jadval satrlaridan assembler yaratadi. auto_addr=False bo'lsa,
+    "Adres" katagiga qo'lda yozilgan qiymatlar LOCCTR sifatida ishlatiladi."""
+    lines, locs = [], {}
+    for i, row in enumerate(rows):
+        line = line_from_fields((i + 1) * 5, row.get("label"), row.get("opcode"),
+                                row.get("operand"), row.get("comment"))
+        addr = (row.get("addr") or "").strip()
+        if not auto_addr and addr and not line.is_comment:
+            try:
+                locs[i] = int(addr, 16)
+            except ValueError:
+                line.errors.append(f"adres 16-lik son bo'lishi kerak: {addr}")
+        lines.append(line)
+    mode = mode if mode in ("auto", "sic", "xe") else "auto"
+    return Assembler(mode=mode, lines=lines, locs=locs)
+
+
 def assemble_to_dict(source, mode):
+    """Programma matnini assembler qiladi (eski matnli interfeys va testlar uchun)."""
+    return result_to_dict(lambda: Assembler(source, mode))
+
+
+def result_to_dict(make_assembler):
     """Assembler natijasini interfeys uchun JSON ko'rinishiga o'tkazadi."""
     try:
-        asm = Assembler(source, mode).assemble()
+        asm = make_assembler().assemble()
     except AsmError as e:
         return {"fatal": str(e)}
 
@@ -52,6 +97,7 @@ def assemble_to_dict(source, mode):
             "label": "*" if kind == "literal" else (line.label or ""),
             "opcode": ("+" if line.extended else "") + (line.opcode or ""),
             "operand": line.text.strip() if kind == "comment" else (line.operand or ""),
+            "manualAddr": (line.lineno // 5 - 1) in asm.locs if line.lineno else False,
             "obj": line.obj,
             "isInstr": kind == "line" and line.opcode in OPTAB,
             "errors": line.errors,
@@ -74,6 +120,7 @@ def assemble_to_dict(source, mode):
         "object": None if asm.has_errors else asm.object_program(),
         "listingText": asm.listing(),
         "errorCount": sum(len(line.errors) for line in asm.lines),
+        "symbolCount": sum(len(s.symtab) for s in asm.sections),
         "sections": [{"name": s.name or "nomsiz", "start": f"{s.start:06X}", "length": f"{s.length:X}"}
                      for s in asm.sections],
     }
@@ -105,10 +152,16 @@ class Api:
         with open(example_path(name), encoding="utf-8") as f:
             text = f.read()
         self._path = None           # misolni saqlashda yangi fayl nomi so'raladi
-        return {"name": name, "text": text}
+        return {"name": name, "text": text, "rows": parse_source(text)}
+
+    def parse_source(self, text):
+        return parse_source(text)
 
     def assemble(self, source, mode="auto"):
         return assemble_to_dict(source, mode if mode in ("auto", "sic", "xe") else "auto")
+
+    def assemble_rows(self, rows, mode="auto", auto_addr=True):
+        return result_to_dict(lambda: build_assembler(rows, mode, auto_addr))
 
     # --- quyidagilar faqat alohida oynada (pywebview) ishlaydi
     def _dialog(self, kind, **kwargs):
@@ -130,7 +183,7 @@ class Api:
         with open(path, encoding="utf-8", errors="replace") as f:
             text = f.read()
         self._path = path
-        return {"name": os.path.basename(path), "text": text}
+        return {"name": os.path.basename(path), "text": text, "rows": parse_source(text)}
 
     def save_file(self, text, save_as=False, suggested="programma.asm"):
         path = self._path
@@ -143,12 +196,20 @@ class Api:
         self._path = path
         return {"name": os.path.basename(path)}
 
-    def save_results(self, text, mode="auto", suggested="natija"):
+    def save_csv(self, content, suggested="jadval.csv"):
+        path = self._dialog("save", save_filename=suggested)
+        if not path:
+            return None
+        with open(path, "w", encoding="utf-8-sig", newline="") as f:   # BOM: Excel uchun
+            f.write(content)
+        return {"name": os.path.basename(path)}
+
+    def save_results(self, rows, mode="auto", auto_addr=True, suggested="natija"):
         path = self._dialog("save", save_filename=suggested + ".lst")
         if not path:
             return None
         base = os.path.splitext(path)[0]
-        asm = Assembler(text, mode).assemble()
+        asm = build_assembler(rows, mode, auto_addr).assemble()
         saved = [base + ".lst"]
         with open(saved[0], "w", encoding="utf-8") as f:
             f.write(asm.listing())
@@ -188,7 +249,7 @@ def run_native(vibrancy):
 
 
 # Brauzer rejimida faqat dialogsiz funksiyalar ochiq
-HTTP_METHODS = {"meta", "examples", "load_example", "assemble"}
+HTTP_METHODS = {"meta", "examples", "load_example", "parse_source", "assemble", "assemble_rows"}
 
 
 def run_browser(port):

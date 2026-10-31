@@ -15,8 +15,22 @@ Python 3.8+ kerak, qo'shimcha kutubxona kerak emas.
 
 ### macOS: Liquid Glass oynasi
 
-![Liquid Glass - yorug'](docs/glass-light.png)
-![Liquid Glass - qorong'i](docs/glass-dark.png)
+![Interaktiv assembler jadvali](docs/glass-table.png)
+
+Programma **interaktiv jadvalda** tahrirlanadi: Satr, Adres, Nishon, Buyruq,
+Operand, Ob'ekt kodi, Izoh. Har bir o'zgarishdan keyin adreslar va ob'ekt
+kodlari darhol qayta hisoblanadi.
+
+* katakni ikki marta bosing yoki yozishni boshlang - tahrirlanadi;
+  Enter - saqlash, Tab - keyingi katak, Esc - bekor qilish, ⌘Z / ⌘⇧Z - orqaga / oldinga;
+* **+ Satr qo'shish**, **↑ / ↓** (⌘↑ / ⌘↓), **− O'chirish** (⌘⌫);
+* **Avtomatik adres** o'chirilsa, Adres katagiga yozilgan qiymat LOCCTR sifatida
+  ishlatiladi va keyingi satrlar shundan davom etadi (qo'lda yozilgan adres ko'k
+  rangda, nuqta bilan); **Adreslarni tiklash** - hammasini avtomatikka qaytaradi;
+* END dan keyingi satrlar o'chiriladi (⌘Z bilan qaytarsa bo'ladi);
+* **CSV saqlash** - jadvalni Excel/Numbers uchun saqlaydi;
+* o'ngda: buyruq tahlili (bitlar), ob'ekt programma, SYMTAB, xatolar;
+* pastda: jami satrlar, label'lar soni va holat.
 
 **Mac ilovasi (.app) qilish:** Finder'da **`build_mac_app.command`** faylini ikki
 marta bosing. U 1-3 daqiqada `dist/SOM Assembler.app` ni yig'adi (ikonka bilan)
@@ -32,11 +46,8 @@ pip3 install -r requirements.txt
 python3 som_glass.py
 ```
 
-* oyna orqasi shaffof (macOS vibrancy), panellar - xira shisha;
-* tizimning yorug'/qorong'i rejimiga avtomatik moslashadi;
-* **Jonli** rejim - yozayotganingizda programma darhol qayta yig'iladi;
-* *Buyruq tahlili*da bitlar (opcode, n i x b p e, disp) rangli "chip"lar bilan ko'rsatiladi;
-* ⌘R yoki F5 - assembler qilish, ⌘S - saqlash, ⌘O - ochish, ⌘N - yangi.
+Oyna orqasi shaffof (macOS vibrancy), panellar xira shisha, tizimning yorug'/qorong'i
+rejimiga moslashadi. ⌘R yoki F5 - qayta hisoblash, ⌘S - saqlash (.asm), ⌘O - ochish, ⌘N - yangi.
 
 `pywebview` o'rnatilmagan bo'lsa yoki `python3 som_glass.py --browser` deb
 ishga tushirilsa, xuddi shu interfeys brauzerda ochiladi. Windows'da ham ishlaydi.
